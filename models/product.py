@@ -13,4 +13,4 @@ class product(db.Model):
     price = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(200), nullable=False)
 
-    orders = db.relationship('Order', backref='product', lazy=True)
+    orders = db.relationship('ProductOrder', back_populates='product')
