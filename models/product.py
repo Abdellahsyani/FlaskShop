@@ -1,16 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
+from .db import db
 
-db = SQLAlchemy()
-
-
-class product(db.Model):
-    """create a table for product listining
-    """
+class Product(db.Model):
+    """create a table for product listing"""
     __tablename__ = 'products'
 
     id = db.Column(db.Integer, primary_key=True)
     p_name = db.Column(db.String(150), nullable=False)
-    price = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.String(200), nullable=False)
+    price = db.Column(db.Float, nullable=False)
 
     orders = db.relationship('ProductOrder', back_populates='product')

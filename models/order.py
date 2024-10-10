@@ -1,14 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
+from .db import db
 
-db = SQLAlchemy()
-
-
-class Orders(db.Model):
-    """start order class to collect the product of the costumer
-    """
+class Order(db.Model):
+    """start order class to collect the product of the customer"""
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
-    costumer_id = db.Column(db.Integer, db.Foreignkey('costumers.id'), nullable=False)
+    costumer_id = db.Column(db.Integer, db.ForeignKey('costumers.id'), nullable=False)
 
-    products = db.ralationship('ProductOrder', back_populates='order')
+    products = db.relationship('ProductOrder', back_populates='order')
