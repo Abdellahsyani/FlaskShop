@@ -1,29 +1,48 @@
 from flask import Blueprint, request, jsonify
-from models import db, Product, ProductOrder
+from models.product import Product
+from ex import db
 
-product_bp = Blueprint('products', __name__)
+bp = Blueprint('product_routes', __name__)
 
-@product_bp.route('/products', methods=['POST'])
+@bp.route('/products', methods=['POST'])
 def create_product():
-    """Define the product endpoint for POST requests."""
     data = request.get_json()
-    name = data.get('name')
-    price = data.get('price')
-
-    if not name or not price:
-        return jsonify({'error': 'Missing name or price'}), 400
-
-    product = Product(name=name, price=price)
-    db.session.add(product)
+    new_product = Product(name=data['name'], price=data['price'])
+    db.session.add(new_product)
     db.session.commit()
+    return jsonify({"message": "Product created successfully."}), 201
 
-    return jsonify({'message': 'Product created successfully', 
-                    'product': {'id': product.id, 'name': product.name, 'price': product.price}}), 201
-
-@product_bp.route('/products', methods=['GET'])
+@bp.route('/products', methods=['GET'])
 def get_products():
-    """Define the product endpoint for GET requests."""
     products = Product.query.all()
-    product_list = [{'id': product.id, 'name': product.name, 'price': product.price} for product in products]
+    return jsonify([{"id": product.id, "name": product.name, "price": product.price} for product in products]), 200
 
-    return jsonify(product_list), 200
+@bp.route('/products/<int:id>', methods=['GET'])
+def get_product(id):
+    product = Product.query.get(id)
+    if product:
+        return jsonify({"id": product.id, "name": product.name, "price": product.price}), 200
+    return jsonify({"message": "Product not found."}), 404
+
+@bp.route('/products/<int:id>', methods=['PUT'])
+def update_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({"message": "Product not found."}), 404
+
+    data = request.get_json()
+    product.name = data.get('name', product.name)
+    product.price = data.get('price', product.price)
+
+    db.session.commit()
+    return jsonify({"message": "Product updated successfully."}), 200
+
+@bp.route('/products/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({"message": "Product not found."}), 404
+
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({"message": "Product deleted successfully."}), 200

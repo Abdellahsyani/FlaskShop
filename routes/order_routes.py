@@ -1,36 +1,65 @@
 from flask import Blueprint, request, jsonify
-from models import db, Order, Product, ProductOrder
+from models.order import Order
+from models.product_order import ProductOrder
+from models.product import Product
+from ex import db
 
-order_bp = Blueprint('orders', __name__)
+bp = Blueprint('order_routes', __name__)
 
-@order_bp.route('/orders', methods=['POST'])
+@bp.route('/orders', methods=['POST'])
 def create_order():
-    """Define the order endpoint for POST requests."""
     data = request.get_json()
-    user_id = data.get('user_id')
-    products = data.get('products')
+    user_id = data['costumer_id']
+    product_id = data['product_id']
+    quantity = data['quantity']
 
-    if not user_id or not products:
-        return jsonify({'error': 'Missing user_id or products'}), 400
+    # Create a new order
+    new_order = Order(costumer_id=user_id)
+    db.session.add(new_order)
+    db.session.commit()
 
-    order = Order(costumer_id=user_id)
-    db.session.add(order)
-
-    for product_data in products:
-        product_id = product_data.get('product_id')
-        quantity = product_data.get('quantity')
-
-        product = Product.query.get(product_id)
-        if not product:
-            return jsonify({'error': f'Product with ID {product_id} does not exist'}), 404
-
-        order_product = ProductOrder(order_id=order.id, product_id=product_id, quantity=quantity)
-        db.session.add(order_product)
-
-    try:
+    # Link the order with a product
+    product = Product.query.get(product_id)
+    if product:
+        product_order = ProductOrder(order_id=new_order.id, product_id=product_id, quantity=quantity)
+        db.session.add(product_order)
         db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"message": "Order created successfully."}), 201
 
-    return jsonify({'message': 'Order created successfully', 'order_id': order.id}), 201
+    return jsonify({"message": "Product not found."}), 404
+
+@bp.route('/orders', methods=['GET'])
+def get_orders():
+    orders = Order.query.all()
+    return jsonify([{"id": order.id, "costumer_id": order.costumer_id} for order in orders]), 200
+
+@bp.route('/orders/<int:id>', methods=['GET'])
+def get_order(id):
+    order = Order.query.get(id)
+    if order:
+        return jsonify({"id": order.id, "costumer_id": order.costumer_id}), 200
+    return jsonify({"message": "Order not found."}), 404
+
+@bp.route('/orders/<int:id>', methods=['PUT'])
+def update_order(id):
+    order = Order.query.get(id)
+    if not order:
+        return jsonify({"message": "Order not found."}), 404
+
+    data = request.get_json()
+    order.costumer_id = data.get('costumer_id', order.costumer_id)
+    
+    # Update related product orders if needed, but consider how this affects your logic.
+
+    db.session.commit()
+    return jsonify({"message": "Order updated successfully."}), 200
+
+@bp.route('/orders/<int:id>', methods=['DELETE'])
+def delete_order(id):
+    order = Order.query.get(id)
+    if not order:
+        return jsonify({"message": "Order not found."}), 404
+
+    db.session.delete(order)
+    db.session.commit()
+    return jsonify({"message": "Order deleted successfully."}), 200
