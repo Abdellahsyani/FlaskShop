@@ -1,30 +1,24 @@
-from flask import Blueprint, request, jsonify
-from models import Product
-from .db import db
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
-product_bp = Blueprint('products', __name__)
+db = SQLAlchemy()
+bcrypt = Bcrypt()
 
-@product_bp.route('/products', methods=['POST'])
-def create_product():
-    """Define the product endpoint for POST requests."""
-    data = request.get_json()
-    name = data.get('p_name')  # Update to match attribute name
-    price = data.get('price')
+class Costumer(db.Model):
+    """The customer table that holds all the info about customers."""
+    __tablename__ = 'costumers'
 
-    if not name or not price:
-        return jsonify({'error': 'Missing name or price'}), 400
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(155), unique=True)
+    last_name = db.Column(db.String(155), unique=True)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
-    product = Product(p_name=name, price=price)  # Updated to match the attribute
-    db.session.add(product)
-    db.session.commit()
+    def __init__(self, email, password):
+        """Hash the password before storing it in the database."""
+        self.email = email
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    return jsonify({'message': 'Product created successfully',
-                    'product': {'id': product.id, 'name': product.p_name, 'price': product.price}}), 201
-
-@product_bp.route('/products', methods=['GET'])
-def get_products():
-    """Define the product endpoint for GET requests."""
-    products = Product.query.all()
-    product_list = [{'id': product.id, 'name': product.p_name, 'price': product.price} for product in products]
-
-    return jsonify(product_list), 200
+    def check_password(self, password):
+        """Check if the hashed password matches."""
+        return bcrypt.check_password_hash(self.password, password)

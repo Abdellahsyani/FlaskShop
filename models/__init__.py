@@ -1,4 +1,6 @@
-from .db import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 from .product import Product
 from .order import Order

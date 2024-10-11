@@ -1,4 +1,4 @@
-from .db import db
+from models import db
 
 class Product(db.Model):
     """create a table for product listing"""
@@ -8,4 +8,4 @@ class Product(db.Model):
     p_name = db.Column(db.String(150), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
-    orders = db.relationship('ProductOrder', back_populates='product')
+    orders = db.relationship('ProductOrder', back_populates='product', cascade='all, delete-orphan', single_parent=True)

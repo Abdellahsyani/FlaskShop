@@ -1,5 +1,5 @@
 from flask import Flask
-from  models.db import db
+from  models import db
 from routes import product_bp
 from routes import order_bp
 
@@ -11,10 +11,11 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize the database
-    db.init_app(app)  # Correct usage to initialize the db with the app
+    db.init_app(app)
 
-    # Register blueprints (your routes)
+    # Register blueprints
     app.register_blueprint(product_bp)
+    app.register_blueprint(order_bp)
 
     return app
 
@@ -22,4 +23,4 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)  # You can specify host and port if needed
+    app.run(debug=True)
