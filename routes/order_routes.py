@@ -49,8 +49,6 @@ def update_order(id):
     data = request.get_json()
     order.costumer_id = data.get('costumer_id', order.costumer_id)
     
-    # Update related product orders if needed, but consider how this affects your logic.
-
     db.session.commit()
     return jsonify({"message": "Order updated successfully."}), 200
 

@@ -40,7 +40,7 @@ def update_customer(id):
     customer.last_name = data.get('last_name', customer.last_name)
     customer.email = data.get('email', customer.email)
     if 'password' in data:
-        customer.password = data['password']  # You may want to hash it again.
+        customer.password = data['password']
 
     db.session.commit()
     return jsonify({"message": "Customer updated successfully."}), 200
