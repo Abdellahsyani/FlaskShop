@@ -14,7 +14,7 @@ def create_order():
     quantity = data['quantity']
 
     # Create a new order
-    new_order = Order(costumer_id=user_id)
+    new_order = Order(costumer_id=user_id, product_id=product_id, quantity=quantity)
     db.session.add(new_order)
     db.session.commit()
 
@@ -31,13 +31,13 @@ def create_order():
 @bp.route('/orders', methods=['GET'])
 def get_orders():
     orders = Order.query.all()
-    return jsonify([{"id": order.id, "costumer_id": order.costumer_id} for order in orders]), 200
+    return jsonify([{"id": order.id, "product_id": order.product_id, "costumer_id": order.costumer_id, "quantity": order.quantity} for order in orders]), 200
 
 @bp.route('/orders/<int:id>', methods=['GET'])
 def get_order(id):
     order = Order.query.get(id)
     if order:
-        return jsonify({"id": order.id, "costumer_id": order.costumer_id}), 200
+        return jsonify({"id": order.id, "product_id": order.product_id, "costumer_id": order.costumer_id, "quantity": order.quantity}), 200
     return jsonify({"message": "Order not found."}), 404
 
 @bp.route('/orders/<int:id>', methods=['PUT'])
