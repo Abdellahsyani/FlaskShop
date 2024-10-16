@@ -12,8 +12,6 @@ The project focuses on creating an e-commerce API using Flask. Its purpose is to
 Customers: Stores user information such as personal details, login credentials, and payment information.
 Products: Contains product details including names, descriptions, prices, and availability.
 Orders: Tracks customer orders, including product selections, quantities, and order statuses.
-Payments: Manages transaction details, ensuring secure and smooth payment processing for each order.
-
 
 ## Setting Up the Flask Server
 
