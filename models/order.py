@@ -10,7 +10,7 @@ class Order(db.Model):
     costumer_id = db.Column(db.Integer, db.ForeignKey('costumers.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    products = db.relationship('ProductOrder', back_populates='order')
+    products = db.relationship('ProductOrder', back_populates='order', cascade="all, delete-orphan")
 
     def __init__(self, costumer_id, product_id, quantity):
         self.costumer_id = costumer_id

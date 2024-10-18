@@ -9,7 +9,7 @@ class Product(db.Model):
     name = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
-    orders = db.relationship('ProductOrder', back_populates='product')
+    orders = db.relationship('ProductOrder', back_populates='product', cascade="all, delete-orphan")
 
     def __init__(self, name, price):
         self.name = name

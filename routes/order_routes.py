@@ -48,6 +48,7 @@ def update_order(id):
 
     data = request.get_json()
     order.costumer_id = data.get('costumer_id', order.costumer_id)
+    order.quantity = data.get('quantity', order.quantity)
     
     db.session.commit()
     return jsonify({"message": "Order updated successfully."}), 200
