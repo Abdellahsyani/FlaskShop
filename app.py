@@ -1,7 +1,7 @@
 from flask import Flask
 from config import Config
 from ex import db, bcrypt  # Import db and bcrypt from extensions
-from routes import costumer_bp, order_bp, product_bp
+from routes import costumer_bp, order_bp, product_bp, frontend_bp
 
 def create_app():
     """Create and configure the Flask application."""
@@ -16,6 +16,7 @@ def create_app():
     app.register_blueprint(costumer_bp)
     app.register_blueprint(order_bp)
     app.register_blueprint(product_bp)
+    app.register_blueprint(frontend_bp)
 
     return app
 
