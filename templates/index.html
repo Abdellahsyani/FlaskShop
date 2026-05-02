@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlaskShop Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1>FlaskShop</h1>
+        <p>Simple admin UI for customers, products, and orders.</p>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Customers</h2>
+          <button class="secondary" id="refresh-customers">Refresh</button>
+        </div>
+        <form id="customer-form" class="grid-form">
+          <label>
+            First name
+            <input name="first_name" type="text" required />
+          </label>
+          <label>
+            Last name
+            <input name="last_name" type="text" required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" required minlength="6" />
+          </label>
+          <button type="submit">Add customer</button>
+        </form>
+        <ul id="customer-list" class="item-list"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Products</h2>
+          <button class="secondary" id="refresh-products">Refresh</button>
+        </div>
+        <form id="product-form" class="grid-form">
+          <label>
+            Name
+            <input name="name" type="text" required />
+          </label>
+          <label>
+            Price
+            <input name="price" type="number" step="0.01" min="0" required />
+          </label>
+          <button type="submit">Add product</button>
+        </form>
+        <ul id="product-list" class="item-list"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Orders</h2>
+          <button class="secondary" id="refresh-orders">Refresh</button>
+        </div>
+        <form id="order-form" class="grid-form">
+          <label>
+            Customer ID
+            <input name="costumer_id" type="number" min="1" required />
+          </label>
+          <label>
+            Product ID
+            <input name="product_id" type="number" min="1" required />
+          </label>
+          <label>
+            Quantity
+            <input name="quantity" type="number" min="1" required />
+          </label>
+          <button type="submit">Create order</button>
+        </form>
+        <ul id="order-list" class="item-list"></ul>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
