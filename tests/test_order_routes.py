@@ -7,7 +7,7 @@ from models.order import Order
 
 class OrderRoutesTest(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()  # Call without arguments to use the default config
+        self.app = create_app({'TESTING': True, 'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'})
         self.app_context = self.app.app_context()
         self.app_context.push()
         
@@ -35,6 +35,19 @@ class OrderRoutesTest(unittest.TestCase):
         response = self.app.test_client().post('/orders', json=self.order_data)
         self.assertEqual(response.status_code, 201)
         self.assertIn(b'Order created successfully.', response.data)
+        self.assertIn('id', json.loads(response.data))
+
+    def test_create_order_product_not_found(self):
+        bad_data = dict(self.order_data, product_id=9999)
+        response = self.app.test_client().post('/orders', json=bad_data)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(b'Product not found.', response.data)
+        self.assertEqual(Order.query.count(), 0)
+
+    def test_create_order_missing_fields(self):
+        response = self.app.test_client().post('/orders', json={'costumer_id': self.costumer.id})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Order.query.count(), 0)
 
     def test_get_orders(self):
         self.app.test_client().post('/orders', json=self.order_data)
@@ -53,6 +66,7 @@ class OrderRoutesTest(unittest.TestCase):
         response = self.app.test_client().get(f'/orders/{order_id}')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Test Product', response.data)
+        self.assertEqual(json.loads(response.data)['product_name'], 'Test Product')
 
     def test_update_order(self):
         response = self.app.test_client().post('/orders', json=self.order_data)

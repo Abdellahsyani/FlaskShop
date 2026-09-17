@@ -1,12 +1,17 @@
 from flask import Blueprint, request, jsonify
 from models import Costumer
-from ex import db
+from ex import db, bcrypt
 
 bp = Blueprint('customer_routes', __name__)
 
 @bp.route('/customers', methods=['POST'])
 def create_customer():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"message": "Request body must be JSON."}), 400
+    missing = [field for field in ('first_name', 'last_name', 'email', 'password') if not data.get(field)]
+    if missing:
+        return jsonify({"message": f"Missing required fields: {', '.join(missing)}."}), 400
     new_customer = Costumer(
         first_name=data['first_name'],
         last_name=data['last_name'],
@@ -15,7 +20,7 @@ def create_customer():
     )
     db.session.add(new_customer)
     db.session.commit()
-    return jsonify({"message": "Customer created successfully."}), 201
+    return jsonify({"id": new_customer.id, "message": "Customer created successfully."}), 201
 
 @bp.route('/customers', methods=['GET'])
 def get_customers():
@@ -35,12 +40,14 @@ def update_customer(id):
     if not customer:
         return jsonify({"message": "Customer not found."}), 404
     
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"message": "Request body must be JSON."}), 400
     customer.first_name = data.get('first_name', customer.first_name)
     customer.last_name = data.get('last_name', customer.last_name)
     customer.email = data.get('email', customer.email)
     if 'password' in data:
-        customer.password = data['password']
+        customer.password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
     db.session.commit()
     return jsonify({"message": "Customer updated successfully."}), 200

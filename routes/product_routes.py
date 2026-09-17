@@ -6,11 +6,16 @@ bp = Blueprint('product_routes', __name__)
 
 @bp.route('/products', methods=['POST'])
 def create_product():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"message": "Request body must be JSON."}), 400
+    missing = [field for field in ('name', 'price') if data.get(field) is None]
+    if missing:
+        return jsonify({"message": f"Missing required fields: {', '.join(missing)}."}), 400
     new_product = Product(name=data['name'], price=data['price'])
     db.session.add(new_product)
     db.session.commit()
-    return jsonify({"message": "Product created successfully."}), 201
+    return jsonify({"id": new_product.id, "message": "Product created successfully."}), 201
 
 @bp.route('/products', methods=['GET'])
 def get_products():
@@ -30,7 +35,9 @@ def update_product(id):
     if not product:
         return jsonify({"message": "Product not found."}), 404
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"message": "Request body must be JSON."}), 400
     product.name = data.get('name', product.name)
     product.price = data.get('price', product.price)
 
