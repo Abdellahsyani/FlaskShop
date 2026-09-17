@@ -3,10 +3,12 @@ from config import Config
 from ex import db, bcrypt  # Import db and bcrypt from extensions
 from routes import costumer_bp, order_bp, product_bp, frontend_bp
 
-def create_app():
+def create_app(config_overrides=None):
     """Create and configure the Flask application."""
     app = Flask(__name__)
     app.config.from_object(Config)  # Load configuration from the Config class
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # Initialize the database and bcrypt with the app
     db.init_app(app)

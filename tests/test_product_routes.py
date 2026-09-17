@@ -31,6 +31,11 @@ class ProductRoutesTest(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 201)
         self.assertIn(b'Product created successfully.', response.data)
+        self.assertIn('id', response.get_json())
+
+    def test_create_product_missing_fields(self):
+        response = self.client.post('/products', json={'name': 'No Price'})
+        self.assertEqual(response.status_code, 400)
 
     def test_get_products(self):
         # First, add a product to the database
